@@ -207,9 +207,14 @@ const Dashboard = () => {
     const obtenerPaises = async () => {
       try {
         const response = await axios.get(`${API}/paises-disponibles`);
-        console.log("📦 Respuesta de países:", response.data);
-        
-        // Es un array simple, así que podemos mapearlo directamente
+
+        // Verificación para detectar si Ngrok responde con HTML en vez de JSON
+        if (typeof response.data === "string" && response.data.includes("<!DOCTYPE html>")) {
+          throw new Error("Ngrok devolvió HTML en vez de JSON. ¿El túnel está caído?");
+        }
+
+        console.log("🌍 Paises disponibles:", response.data);
+
         const lista = response.data.map(codigo => ({
           code: codigo,
           label: aliasPaises[codigo.toLowerCase()] || codigo
@@ -217,9 +222,10 @@ const Dashboard = () => {
 
         setListaPaises(lista);
       } catch (error) {
-        console.error("Error al obtener países:", error);
+        console.error("❌ Error al cargar países:", error);
       }
     };
+
     obtenerPaises();
   }, []);
 
